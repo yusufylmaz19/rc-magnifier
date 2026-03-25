@@ -52,7 +52,6 @@ const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
 
   return (
     <div className={className} style={{ display: "inline-flex", ...style }}>
-      {/* Sol: orijinal */}
       <div
         style={{
           position: "relative",
@@ -97,7 +96,6 @@ const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
           </div>
         )}
       </div>
-      {/* Sağ: zoom */}
       {pos.visible && (
         <div
           style={{

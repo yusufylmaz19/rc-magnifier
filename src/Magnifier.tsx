@@ -26,9 +26,11 @@ const Magnifier: React.FC<MagnifierProps> = ({
     let x = clientX - rect.left;
     let y = clientY - rect.top;
 
-    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
-      setState(p => ({ ...p, visible: false }));
-      return;
+    if (position !== 'follow') {
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+        setState(p => ({ ...p, visible: false }));
+        return;
+      }
     }
 
     const imgW = rect.width * zoom;
@@ -41,14 +43,12 @@ const Magnifier: React.FC<MagnifierProps> = ({
     const half = lensSize / 2;
 
     if (position === 'follow') {
-      const clampX = rect.width > lensSize ? Math.max(half, Math.min(rect.width - half, x)) : rect.width / 2;
-      const clampY = rect.height > lensSize ? Math.max(half, Math.min(rect.height - half, y)) : rect.height / 2;
-
-      cx = clampX;
-      cy = clampY;
+      cx = x;
+      cy = y;
 
       bgX = -(cx * zoom - half);
       bgY = -(cy * zoom - half);
+
     } else {
       const panelSize = lensSize * 1.5;
       const relX = x / rect.width;
@@ -99,7 +99,7 @@ const Magnifier: React.FC<MagnifierProps> = ({
       backgroundSize: `${state.imgW}px ${state.imgH}px`,
       backgroundPosition: `${state.bgX}px ${state.bgY}px`,
       border: `${borderWidth}px solid ${borderColor}`,
-      pointerEvents: 'none',
+      pointerEvents: 'none', // Mercek fareyi engellemez.
       boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
       imageRendering: 'high-quality' as any,
     };
@@ -111,6 +111,7 @@ const Magnifier: React.FC<MagnifierProps> = ({
         left: state.x, top: state.y,
         width: lensSize, height: lensSize,
         borderRadius: lensShape === 'circle' ? '50%' : '6px',
+        zIndex: 9999,
       };
     }
 
@@ -136,7 +137,7 @@ const Magnifier: React.FC<MagnifierProps> = ({
     <div
       ref={containerRef}
       className={className}
-      style={{ position: 'relative', display: 'inline-block', ...style }}
+      style={{ position: 'relative', display: 'inline-block', overflow: 'visible', ...style }}
       onMouseMove={onMouseMove}
       onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
       onTouchMove={onTouchMove}

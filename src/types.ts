@@ -11,7 +11,7 @@ export interface BaseMagnifierProps {
   style?: React.CSSProperties;
 }
 
-// Mevcut
+// Default
 export interface MagnifierProps extends BaseMagnifierProps {
   lensSize?: number;
   lensShape?: 'circle' | 'square';
@@ -34,11 +34,16 @@ export interface PiPMagnifierProps extends BaseMagnifierProps {
 
 // Grid
 export interface GridMagnifierProps extends BaseMagnifierProps {
-  levels?: number[]; // zoom seviyeleri, default [1.5, 2, 3, 4]
+  levels?: number[];
   position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 // Fullscreen
 export interface FullscreenMagnifierProps extends BaseMagnifierProps {
   triggerText?: string;
+  hintText?: string;
+  initialRotation?: number;
+  initialFlipX?: boolean;
+  initialFlipY?: boolean;
+  allowZoom?: boolean;
 }
