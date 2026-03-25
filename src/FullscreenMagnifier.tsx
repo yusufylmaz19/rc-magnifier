@@ -6,6 +6,12 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
   zoomFactor = 3, minZoom = 1, maxZoom = 10, triggerText = '🔍 Zoom',
   hintText = 'Move mouse to explore, scroll to zoom',
   initialRotation = 0, initialFlipX = false, initialFlipY = false,
+  zoomOnText = 'Zoom On',
+  zoomOffText = 'Zoom Off',
+  resetText = 'Reset',
+  rotateText = 'Rotate',
+  flipText = 'Flip',
+  activateZoomHint = 'Click "Zoom Off" button to activate zoom',
   alt = '', className, style,
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -16,6 +22,14 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
   const [flipX, setFlipX] = useState(initialFlipX);
   const [flipY, setFlipY] = useState(initialFlipY);
   const [isZoomActive, setIsZoomActive] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     setRotation(initialRotation);
@@ -33,7 +47,7 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
     let x = clientX - (rect.left + rect.width / 2);
     let y = clientY - (rect.top + rect.height / 2);
 
-    // Inverse Transformation for Mouse Coordinates
+    // Inverse Transformation for Mouse/Touch Coordinates
     if (fx) x = -x;
     if (fy) y = -y;
 
@@ -80,6 +94,12 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
     handleMove(e.clientX, e.clientY, currentZoom, rotation, flipX, flipY);
   };
 
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches && e.touches[0]) {
+      handleMove(e.touches[0].clientX, e.touches[0].clientY, currentZoom, rotation, flipX, flipY);
+    }
+  };
+
   const handleWheel = (e: React.WheelEvent) => {
     if (!isZoomActive) return;
     e.preventDefault();
@@ -117,11 +137,12 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
           display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
           fontFamily: 'sans-serif',
+          padding: isMobile ? '20px' : '0',
         }}>
           <button onClick={() => setOpen(false)} style={{
-            position: 'absolute', top: 20, right: 24,
+            position: 'absolute', top: isMobile ? 10 : 20, right: isMobile ? 10 : 24,
             background: 'none', border: 'none', color: '#fff',
-            fontSize: 28, cursor: 'pointer',
+            fontSize: isMobile ? 24 : 28, cursor: 'pointer',
           }}>✕</button>
 
           <div
@@ -131,13 +152,16 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
               borderRadius: 12,
               transform: `rotate(${rotation}deg) scaleX(${flipX ? -1 : 1}) scaleY(${flipY ? -1 : 1})`,
               transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              width: isMobile ? '95vw' : '80vw',
+              height: isMobile ? '50vh' : '80vh',
             }}
           >
             <div id="fs-overlay"
               onMouseMove={onMouseMove}
+              onTouchMove={onTouchMove}
               onWheel={handleWheel}
               style={{
-                width: '80vw', height: '80vh',
+                width: '100%', height: '100%',
                 backgroundImage: `url(${popupSrc})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: (isZoomActive && pos.imgW) ? `${pos.imgW}px ${pos.imgH}px` : 'contain',
@@ -148,27 +172,47 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
           </div>
 
           <div style={{
-            marginTop: 24, display: 'flex', gap: 12, alignItems: 'center',
-            background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: 30,
+            marginTop: isMobile ? 16 : 24,
+            display: 'flex',
+            gap: isMobile ? 8 : 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            background: 'rgba(255,255,255,0.1)',
+            padding: isMobile ? '8px 12px' : '10px 20px',
+            borderRadius: 30,
             backdropFilter: 'blur(10px)',
+            maxWidth: '90vw',
           }}>
             <button
               onClick={() => setIsZoomActive(!isZoomActive)}
-              style={{ ...btnStyle, background: isZoomActive ? 'rgba(255,255,255,0.2)' : 'none', color: isZoomActive ? '#fff' : '#888' }}
+              style={{
+                ...btnStyle,
+                fontSize: isMobile ? 11 : 13,
+                background: isZoomActive ? 'rgba(255,255,255,0.2)' : 'none',
+                color: isZoomActive ? '#fff' : '#888'
+              }}
             >
-              {isZoomActive ? '🔍 Zoom On' : '🔍 Zoom Off'}
+              {isZoomActive ? `🔍 ${zoomOnText}` : `🔍 ${zoomOffText}`}
             </button>
-            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)' }} />
-            <button onClick={() => setRotation(r => r - 90)} style={btnStyle}>↺ Rotate</button>
-            <button onClick={() => setRotation(r => r + 90)} style={btnStyle}>Rotate ↻</button>
-            <button onClick={() => setFlipX(!flipX)} style={btnStyle}>Flip X</button>
-            <button onClick={() => setFlipY(!flipY)} style={btnStyle}>Flip Y</button>
-            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)' }} />
-            <button onClick={reset} style={{ ...btnStyle, color: '#ff4d4d' }}>Reset</button>
+            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)', display: isMobile ? 'none' : 'block' }} />
+            <button onClick={() => setRotation(r => r - 90)} style={{ ...btnStyle, fontSize: isMobile ? 11 : 13 }}>{rotateText} ↺</button>
+            <button onClick={() => setRotation(r => r + 90)} style={{ ...btnStyle, fontSize: isMobile ? 11 : 13 }}>{rotateText} ↻</button>
+            <button onClick={() => setFlipX(!flipX)} style={{ ...btnStyle, fontSize: isMobile ? 11 : 13 }}>{flipText} X</button>
+            <button onClick={() => setFlipY(!flipY)} style={{ ...btnStyle, fontSize: isMobile ? 11 : 13 }}>{flipText} Y</button>
+            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.2)', display: isMobile ? 'none' : 'block' }} />
+            <button onClick={reset} style={{ ...btnStyle, color: '#ff4d4d', fontSize: isMobile ? 11 : 13 }}>{resetText}</button>
           </div>
 
-          <p style={{ color: '#666', marginTop: 16, fontSize: 13, letterSpacing: 0.5 }}>
-            {isZoomActive ? hintText : 'Click "Zoom Off" button to activate zoom'}
+          <p style={{
+            color: '#666',
+            marginTop: 16,
+            fontSize: isMobile ? 11 : 13,
+            letterSpacing: 0.5,
+            textAlign: 'center',
+            padding: '0 20px'
+          }}>
+            {isZoomActive ? hintText : activateZoomHint}
           </p>
         </div>
       )}

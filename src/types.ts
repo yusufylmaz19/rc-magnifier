@@ -46,4 +46,10 @@ export interface FullscreenMagnifierProps extends BaseMagnifierProps {
   initialFlipX?: boolean;
   initialFlipY?: boolean;
   allowZoom?: boolean;
+  zoomOnText?: string;
+  zoomOffText?: string;
+  resetText?: string;
+  rotateText?: string;
+  flipText?: string;
+  activateZoomHint?: string;
 }
