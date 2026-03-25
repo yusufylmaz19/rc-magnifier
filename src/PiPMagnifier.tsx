@@ -19,13 +19,11 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
     const y = clientY - rect.top;
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) { setState(p => ({ ...p, visible: false })); return; }
     const half = pipSize / 2;
-    const scaleX = img.naturalWidth / rect.width;
-    const scaleY = img.naturalHeight / rect.height;
     setState({
-      bgX: -(x * scaleX * zoom - half),
-      bgY: -(y * scaleY * zoom - half),
-      imgW: img.naturalWidth * zoom,
-      imgH: img.naturalHeight * zoom,
+      bgX: -(x * zoom - half),
+      bgY: -(y * zoom - half),
+      imgW: rect.width * zoom,
+      imgH: rect.height * zoom,
       visible: true,
     });
   };

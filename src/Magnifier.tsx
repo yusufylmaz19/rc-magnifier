@@ -31,8 +31,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
       return;
     }
 
-    const imgW = img.naturalWidth * zoom;
-    const imgH = img.naturalHeight * zoom;
+    const imgW = rect.width * zoom;
+    const imgH = rect.height * zoom;
 
     let bgX = 0;
     let bgY = 0;
@@ -47,10 +47,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
       cx = clampX;
       cy = clampY;
 
-      const scaleX = img.naturalWidth / rect.width;
-      const scaleY = img.naturalHeight / rect.height;
-      bgX = -(cx * scaleX * zoom - half);
-      bgY = -(cy * scaleY * zoom - half);
+      bgX = -(cx * zoom - half);
+      bgY = -(cy * zoom - half);
     } else {
       const panelSize = lensSize * 1.5;
       const relX = x / rect.width;

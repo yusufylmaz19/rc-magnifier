@@ -37,20 +37,16 @@ const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
   };
 
   const img = imgRef.current;
-  const bgX = img
-    ? -(
-        pos.x * img.naturalWidth * currentZoom -
-        (img.getBoundingClientRect().width * splitRatio) / 2
-      )
+  const rect = img ? img.getBoundingClientRect() : null;
+
+  const bgX = img && rect
+    ? -(pos.x * rect.width * currentZoom - (rect.width * splitRatio) / 2)
     : 0;
-  const bgY = img
-    ? -(
-        pos.y * img.naturalHeight * currentZoom -
-        img.getBoundingClientRect().height / 2
-      )
+  const bgY = img && rect
+    ? -(pos.y * rect.height * currentZoom - rect.height / 2)
     : 0;
-  const bgW = img ? img.naturalWidth * currentZoom : 0;
-  const bgH = img ? img.naturalHeight * currentZoom : 0;
+  const bgW = img && rect ? rect.width * currentZoom : 0;
+  const bgH = img && rect ? rect.height * currentZoom : 0;
 
   const bgSrc = largeSrc || src;
 

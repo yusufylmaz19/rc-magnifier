@@ -19,13 +19,33 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
     const y = clientY - rect.top;
     const img = imgRef.current;
     if (!img) return;
-    const scaleX = img.naturalWidth / rect.width;
-    const scaleY = img.naturalHeight / rect.height;
+
+    // Calculate actual displayed size of the image in the overlay (which uses contain)
+    const overlayRatio = rect.width / rect.height;
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    let baseW, baseH;
+    if (imgRatio > overlayRatio) {
+      baseW = rect.width;
+      baseH = rect.width / imgRatio;
+    } else {
+      baseH = rect.height;
+      baseW = rect.height * imgRatio;
+    }
+
+    // Since the image is centered in the overlay (backgroundPosition: center without zoom),
+    // we need to offset x and y to be relative to the actual image bounds
+    const imgLeft = (rect.width - baseW) / 2;
+    const imgTop = (rect.height - baseH) / 2;
+    
+    // Clamp the mouse position to the image bounds
+    const clampedX = Math.max(0, Math.min(x - imgLeft, baseW));
+    const clampedY = Math.max(0, Math.min(y - imgTop, baseH));
+
     setPos({
-      bgX: -(x * scaleX * zoom - rect.width / 2),
-      bgY: -(y * scaleY * zoom - rect.height / 2),
-      imgW: img.naturalWidth * zoom,
-      imgH: img.naturalHeight * zoom,
+      bgX: -(clampedX * zoom - rect.width / 2),
+      bgY: -(clampedY * zoom - rect.height / 2),
+      imgW: baseW * zoom,
+      imgH: baseH * zoom,
     });
   };
 

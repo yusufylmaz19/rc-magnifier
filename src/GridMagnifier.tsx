@@ -40,15 +40,17 @@ const GridMagnifier: React.FC<GridMagnifierProps> = ({
             if (!img) return null;
             const rect = img.getBoundingClientRect();
             const half = cellSize / 2;
-            const bgX = -(pos.x * img.naturalWidth * zoom - half);
-            const bgY = -(pos.y * img.naturalHeight * zoom - half);
+            const bgW = rect.width * zoom;
+            const bgH = rect.height * zoom;
+            const bgX = -(pos.x * bgW - half);
+            const bgY = -(pos.y * bgH - half);
             const bgSrc = largeSrc || src;
             return (
               <div key={i} style={{
                 width: cellSize, height: cellSize,
                 backgroundImage: `url(${bgSrc})`,
                 backgroundRepeat: 'no-repeat',
-                backgroundSize: `${img.naturalWidth * zoom}px ${img.naturalHeight * zoom}px`,
+                backgroundSize: `${bgW}px ${bgH}px`,
                 backgroundPosition: `${bgX}px ${bgY}px`,
                 borderRadius: 6,
                 border: '2px solid #ccc',
