@@ -2,15 +2,16 @@ import React, { useRef, useState } from 'react';
 import type { PiPMagnifierProps } from './types';
 
 const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
-  src, width = '100%', height = 'auto',
-  zoomFactor = 3, pipSize = 200,
+  src, largeSrc, width = '100%', height = 'auto',
+  zoomFactor = 3, minZoom = 1, maxZoom = 10, pipSize = 200,
   pipPosition = 'bottom-right',
   borderColor = '#fff', alt = '', className, style,
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [state, setState] = useState({ bgX: 0, bgY: 0, imgW: 0, imgH: 0, visible: false });
+  const [currentZoom, setCurrentZoom] = useState(zoomFactor);
 
-  const handleMove = (clientX: number, clientY: number) => {
+  const handleMove = (clientX: number, clientY: number, zoom: number) => {
     const img = imgRef.current;
     if (!img) return;
     const rect = img.getBoundingClientRect();
@@ -21,12 +22,26 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
     const scaleX = img.naturalWidth / rect.width;
     const scaleY = img.naturalHeight / rect.height;
     setState({
-      bgX: -(x * scaleX * zoomFactor - half),
-      bgY: -(y * scaleY * zoomFactor - half),
-      imgW: img.naturalWidth * zoomFactor,
-      imgH: img.naturalHeight * zoomFactor,
+      bgX: -(x * scaleX * zoom - half),
+      bgY: -(y * scaleY * zoom - half),
+      imgW: img.naturalWidth * zoom,
+      imgH: img.naturalHeight * zoom,
       visible: true,
     });
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    handleMove(e.clientX, e.clientY, currentZoom);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const newZoom = currentZoom + (e.deltaY < 0 ? 0.5 : -0.5);
+    const clampedZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+    setCurrentZoom(clampedZoom);
+    if (state.visible) {
+      handleMove(e.clientX, e.clientY, clampedZoom);
+    }
   };
 
   const pipPos: Record<string, React.CSSProperties> = {
@@ -36,11 +51,14 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
     'bottom-right': { bottom: 10, right: 10 },
   };
 
+  const bgSrc = largeSrc || src;
+
   return (
     <div className={className}
       style={{ position: 'relative', display: 'inline-block', ...style }}
-      onMouseMove={e => handleMove(e.clientX, e.clientY)}
-      onMouseLeave={() => setState(p => ({ ...p, visible: false }))}>
+      onMouseMove={onMouseMove}
+      onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
+      onWheel={handleWheel}>
       <img ref={imgRef} src={src} alt={alt}
         style={{ width, height, display: 'block' }} draggable={false} />
       {state.visible && (
@@ -49,12 +67,13 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
           width: pipSize, height: pipSize,
           borderRadius: '8px',
           border: `3px solid ${borderColor}`,
-          backgroundImage: `url(${src})`,
+          backgroundImage: `url(${bgSrc})`,
           backgroundRepeat: 'no-repeat',
           backgroundSize: `${state.imgW}px ${state.imgH}px`,
           backgroundPosition: `${state.bgX}px ${state.bgY}px`,
           boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
           pointerEvents: 'none',
+          imageRendering: 'high-quality' as any,
         }} />
       )}
     </div>

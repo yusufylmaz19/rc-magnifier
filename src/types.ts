@@ -1,8 +1,11 @@
 export interface BaseMagnifierProps {
   src: string;
+  largeSrc?: string;
   width?: number | string;
   height?: number | string;
   zoomFactor?: number;
+  minZoom?: number;
+  maxZoom?: number;
   alt?: string;
   className?: string;
   style?: React.CSSProperties;

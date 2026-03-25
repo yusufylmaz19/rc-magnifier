@@ -3,21 +3,22 @@ import { createPortal } from 'react-dom';
 import type { MagnifierProps } from './types';
 
 const Magnifier: React.FC<MagnifierProps> = ({
-  src, width = '100%', height = 'auto',
-  zoomFactor = 2.5, lensSize = 120,
+  src, largeSrc, width = '100%', height = 'auto',
+  zoomFactor = 2.5, minZoom = 1, maxZoom = 10, lensSize = 120,
   lensShape = 'circle', borderColor = '#fff',
   borderWidth = 3, className, style, alt = '',
   position = 'follow',
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [currentZoom, setCurrentZoom] = useState(zoomFactor);
   const [state, setState] = useState({
     x: 0, y: 0, visible: false,
     bgX: 0, bgY: 0, imgW: 0, imgH: 0,
     relX: 0, relY: 0,
   });
 
-  const handleMove = useCallback((clientX: number, clientY: number) => {
+  const handleMove = useCallback((clientX: number, clientY: number, zoom: number) => {
     const img = imgRef.current;
     if (!img) return;
     const rect = img.getBoundingClientRect();
@@ -30,8 +31,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
       return;
     }
 
-    const imgW = img.naturalWidth * zoomFactor;
-    const imgH = img.naturalHeight * zoomFactor;
+    const imgW = img.naturalWidth * zoom;
+    const imgH = img.naturalHeight * zoom;
 
     let bgX = 0;
     let bgY = 0;
@@ -48,8 +49,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
 
       const scaleX = img.naturalWidth / rect.width;
       const scaleY = img.naturalHeight / rect.height;
-      bgX = -(cx * scaleX * zoomFactor - half);
-      bgY = -(cy * scaleY * zoomFactor - half);
+      bgX = -(cx * scaleX * zoom - half);
+      bgY = -(cy * scaleY * zoom - half);
     } else {
       const panelSize = lensSize * 1.5;
       const relX = x / rect.width;
@@ -70,18 +71,39 @@ const Magnifier: React.FC<MagnifierProps> = ({
       relX: x / rect.width,
       relY: y / rect.height,
     });
-  }, [lensSize, zoomFactor, position]);
+  }, [lensSize, position]);
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    handleMove(e.clientX, e.clientY, currentZoom);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault();
+    handleMove(e.touches[0].clientX, e.touches[0].clientY, currentZoom);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const newZoom = currentZoom + (e.deltaY < 0 ? 0.5 : -0.5);
+    const clampedZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+    setCurrentZoom(clampedZoom);
+    if (state.visible) {
+      handleMove(e.clientX, e.clientY, clampedZoom);
+    }
+  };
 
   const getPanelStyle = (): React.CSSProperties => {
     const img = imgRef.current;
+    const bgSrc = largeSrc || src;
     const base: React.CSSProperties = {
-      backgroundImage: `url(${src})`,
+      backgroundImage: `url(${bgSrc})`,
       backgroundRepeat: 'no-repeat',
       backgroundSize: `${state.imgW}px ${state.imgH}px`,
       backgroundPosition: `${state.bgX}px ${state.bgY}px`,
       border: `${borderWidth}px solid ${borderColor}`,
       pointerEvents: 'none',
       boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+      imageRendering: 'high-quality' as any,
     };
 
     if (position === 'follow') {
@@ -117,10 +139,11 @@ const Magnifier: React.FC<MagnifierProps> = ({
       ref={containerRef}
       className={className}
       style={{ position: 'relative', display: 'inline-block', ...style }}
-      onMouseMove={e => handleMove(e.clientX, e.clientY)}
+      onMouseMove={onMouseMove}
       onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
-      onTouchMove={e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
+      onTouchMove={onTouchMove}
       onTouchEnd={() => setState(p => ({ ...p, visible: false }))}
+      onWheel={handleWheel}
     >
       <img ref={imgRef} src={src} alt={alt}
         style={{ width, height, display: 'block' }} draggable={false} />

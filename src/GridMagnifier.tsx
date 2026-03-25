@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import type { GridMagnifierProps } from './types';
 
 const GridMagnifier: React.FC<GridMagnifierProps> = ({
-  src, width = '100%', height = 'auto',
+  src, largeSrc, width = '100%', height = 'auto',
   levels = [1.5, 2, 3, 4], alt = '', className, style,
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -42,16 +42,18 @@ const GridMagnifier: React.FC<GridMagnifierProps> = ({
             const half = cellSize / 2;
             const bgX = -(pos.x * img.naturalWidth * zoom - half);
             const bgY = -(pos.y * img.naturalHeight * zoom - half);
+            const bgSrc = largeSrc || src;
             return (
               <div key={i} style={{
                 width: cellSize, height: cellSize,
-                backgroundImage: `url(${src})`,
+                backgroundImage: `url(${bgSrc})`,
                 backgroundRepeat: 'no-repeat',
                 backgroundSize: `${img.naturalWidth * zoom}px ${img.naturalHeight * zoom}px`,
                 backgroundPosition: `${bgX}px ${bgY}px`,
                 borderRadius: 6,
                 border: '2px solid #ccc',
                 position: 'relative',
+                imageRendering: 'high-quality' as any,
               }}>
                 <span style={{
                   position: 'absolute', bottom: 4, right: 6,
