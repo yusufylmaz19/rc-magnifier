@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import type { MagnifierProps } from './types';
 
 const Magnifier: React.FC<MagnifierProps> = ({
@@ -70,15 +71,19 @@ const Magnifier: React.FC<MagnifierProps> = ({
       };
     }
 
-    const w = img?.getBoundingClientRect().width ?? 300;
-    const h = img?.getBoundingClientRect().height ?? 300;
+    const containerNode = containerRef.current;
+    if (!containerNode) return { ...base };
+
+    const rect = containerNode.getBoundingClientRect();
     const panelSize = lensSize * 1.5;
+    const scrollX = typeof window !== 'undefined' ? window.pageXOffset : 0;
+    const scrollY = typeof window !== 'undefined' ? window.pageYOffset : 0;
 
     const positions: Record<string, React.CSSProperties> = {
-      right:  { position: 'absolute', right: -(panelSize + 12), top: '50%', transform: 'translateY(-50%)', width: panelSize, height: panelSize },
-      left:   { position: 'absolute', left: -(panelSize + 12),  top: '50%', transform: 'translateY(-50%)', width: panelSize, height: panelSize },
-      top:    { position: 'absolute', top: -(panelSize + 12), left: '50%', transform: 'translateX(-50%)', width: panelSize, height: panelSize },
-      bottom: { position: 'absolute', bottom: -(panelSize + 12), left: '50%', transform: 'translateX(-50%)', width: panelSize, height: panelSize },
+      right:  { position: 'absolute', left: rect.right + scrollX + 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      left:   { position: 'absolute', left: rect.left + scrollX - panelSize - 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      top:    { position: 'absolute', top: rect.top + scrollY - panelSize - 12, left: rect.left + scrollX + rect.width / 2, transform: 'translateX(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      bottom: { position: 'absolute', top: rect.bottom + scrollY + 12, left: rect.left + scrollX + rect.width / 2, transform: 'translateX(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
     };
 
     return { ...base, borderRadius: '8px', ...positions[position] };
@@ -96,7 +101,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
     >
       <img ref={imgRef} src={src} alt={alt}
         style={{ width, height, display: 'block' }} draggable={false} />
-      {state.visible && <div style={getPanelStyle()} />}
+      {state.visible && position === 'follow' && <div style={getPanelStyle()} />}
+      {state.visible && position !== 'follow' && typeof document !== 'undefined' && createPortal(<div style={getPanelStyle()} />, document.body)}
     </div>
   );
 };
