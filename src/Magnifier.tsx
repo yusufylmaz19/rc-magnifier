@@ -21,7 +21,6 @@ const Magnifier: React.FC<MagnifierProps> = ({
     const img = imgRef.current;
     if (!img) return;
     const rect = img.getBoundingClientRect();
-    const half = lensSize / 2;
 
     let x = clientX - rect.left;
     let y = clientY - rect.top;
@@ -31,23 +30,47 @@ const Magnifier: React.FC<MagnifierProps> = ({
       return;
     }
 
-    const cx = Math.max(half, Math.min(rect.width - half, x));
-    const cy = Math.max(half, Math.min(rect.height - half, y));
+    const imgW = img.naturalWidth * zoomFactor;
+    const imgH = img.naturalHeight * zoomFactor;
 
-    const scaleX = img.naturalWidth / rect.width;
-    const scaleY = img.naturalHeight / rect.height;
-    const bgX = -(cx * scaleX * zoomFactor - half);
-    const bgY = -(cy * scaleY * zoomFactor - half);
+    let bgX = 0;
+    let bgY = 0;
+    let cx = x;
+    let cy = y;
+    const half = lensSize / 2;
+
+    if (position === 'follow') {
+      const clampX = rect.width > lensSize ? Math.max(half, Math.min(rect.width - half, x)) : rect.width / 2;
+      const clampY = rect.height > lensSize ? Math.max(half, Math.min(rect.height - half, y)) : rect.height / 2;
+
+      cx = clampX;
+      cy = clampY;
+
+      const scaleX = img.naturalWidth / rect.width;
+      const scaleY = img.naturalHeight / rect.height;
+      bgX = -(cx * scaleX * zoomFactor - half);
+      bgY = -(cy * scaleY * zoomFactor - half);
+    } else {
+      const panelSize = lensSize * 1.5;
+      const relX = x / rect.width;
+      const relY = y / rect.height;
+
+      const maxBgX = imgW - panelSize;
+      bgX = maxBgX > 0 ? -(relX * maxBgX) : (panelSize - imgW) / 2;
+
+      const maxBgY = imgH - panelSize;
+      bgY = maxBgY > 0 ? -(relY * maxBgY) : (panelSize - imgH) / 2;
+    }
 
     setState({
       x: cx - half, y: cy - half, visible: true,
       bgX, bgY,
-      imgW: img.naturalWidth * zoomFactor,
-      imgH: img.naturalHeight * zoomFactor,
+      imgW,
+      imgH,
       relX: x / rect.width,
       relY: y / rect.height,
     });
-  }, [lensSize, zoomFactor]);
+  }, [lensSize, zoomFactor, position]);
 
   const getPanelStyle = (): React.CSSProperties => {
     const img = imgRef.current;
@@ -80,9 +103,9 @@ const Magnifier: React.FC<MagnifierProps> = ({
     const scrollY = typeof window !== 'undefined' ? window.pageYOffset : 0;
 
     const positions: Record<string, React.CSSProperties> = {
-      right:  { position: 'absolute', left: rect.right + scrollX + 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
-      left:   { position: 'absolute', left: rect.left + scrollX - panelSize - 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
-      top:    { position: 'absolute', top: rect.top + scrollY - panelSize - 12, left: rect.left + scrollX + rect.width / 2, transform: 'translateX(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      right: { position: 'absolute', left: rect.right + scrollX + 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      left: { position: 'absolute', left: rect.left + scrollX - panelSize - 12, top: rect.top + scrollY + rect.height / 2, transform: 'translateY(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
+      top: { position: 'absolute', top: rect.top + scrollY - panelSize - 12, left: rect.left + scrollX + rect.width / 2, transform: 'translateX(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
       bottom: { position: 'absolute', top: rect.bottom + scrollY + 12, left: rect.left + scrollX + rect.width / 2, transform: 'translateX(-50%)', width: panelSize, height: panelSize, zIndex: 9999 },
     };
 
