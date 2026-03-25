@@ -35,6 +35,7 @@ export interface PiPMagnifierProps extends BaseMagnifierProps {
 // Grid
 export interface GridMagnifierProps extends BaseMagnifierProps {
   levels?: number[]; // zoom seviyeleri, default [1.5, 2, 3, 4]
+  position?: 'top' | 'bottom' | 'left' | 'right';
 }
 
 // Fullscreen
