@@ -1,0 +1,104 @@
+import React, { useRef, useState, useCallback } from 'react';
+import type { MagnifierProps } from './types';
+
+const Magnifier: React.FC<MagnifierProps> = ({
+  src, width = '100%', height = 'auto',
+  zoomFactor = 2.5, lensSize = 120,
+  lensShape = 'circle', borderColor = '#fff',
+  borderWidth = 3, className, style, alt = '',
+  position = 'follow',
+}) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState({
+    x: 0, y: 0, visible: false,
+    bgX: 0, bgY: 0, imgW: 0, imgH: 0,
+    relX: 0, relY: 0,
+  });
+
+  const handleMove = useCallback((clientX: number, clientY: number) => {
+    const img = imgRef.current;
+    if (!img) return;
+    const rect = img.getBoundingClientRect();
+    const half = lensSize / 2;
+
+    let x = clientX - rect.left;
+    let y = clientY - rect.top;
+
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+      setState(p => ({ ...p, visible: false }));
+      return;
+    }
+
+    const cx = Math.max(half, Math.min(rect.width - half, x));
+    const cy = Math.max(half, Math.min(rect.height - half, y));
+
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+    const bgX = -(cx * scaleX * zoomFactor - half);
+    const bgY = -(cy * scaleY * zoomFactor - half);
+
+    setState({
+      x: cx - half, y: cy - half, visible: true,
+      bgX, bgY,
+      imgW: img.naturalWidth * zoomFactor,
+      imgH: img.naturalHeight * zoomFactor,
+      relX: x / rect.width,
+      relY: y / rect.height,
+    });
+  }, [lensSize, zoomFactor]);
+
+  const getPanelStyle = (): React.CSSProperties => {
+    const img = imgRef.current;
+    const base: React.CSSProperties = {
+      backgroundImage: `url(${src})`,
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: `${state.imgW}px ${state.imgH}px`,
+      backgroundPosition: `${state.bgX}px ${state.bgY}px`,
+      border: `${borderWidth}px solid ${borderColor}`,
+      pointerEvents: 'none',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+    };
+
+    if (position === 'follow') {
+      return {
+        ...base,
+        position: 'absolute',
+        left: state.x, top: state.y,
+        width: lensSize, height: lensSize,
+        borderRadius: lensShape === 'circle' ? '50%' : '6px',
+      };
+    }
+
+    const w = img?.getBoundingClientRect().width ?? 300;
+    const h = img?.getBoundingClientRect().height ?? 300;
+    const panelSize = lensSize * 1.5;
+
+    const positions: Record<string, React.CSSProperties> = {
+      right:  { position: 'absolute', right: -(panelSize + 12), top: '50%', transform: 'translateY(-50%)', width: panelSize, height: panelSize },
+      left:   { position: 'absolute', left: -(panelSize + 12),  top: '50%', transform: 'translateY(-50%)', width: panelSize, height: panelSize },
+      top:    { position: 'absolute', top: -(panelSize + 12), left: '50%', transform: 'translateX(-50%)', width: panelSize, height: panelSize },
+      bottom: { position: 'absolute', bottom: -(panelSize + 12), left: '50%', transform: 'translateX(-50%)', width: panelSize, height: panelSize },
+    };
+
+    return { ...base, borderRadius: '8px', ...positions[position] };
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={className}
+      style={{ position: 'relative', display: 'inline-block', ...style }}
+      onMouseMove={e => handleMove(e.clientX, e.clientY)}
+      onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
+      onTouchMove={e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }}
+      onTouchEnd={() => setState(p => ({ ...p, visible: false }))}
+    >
+      <img ref={imgRef} src={src} alt={alt}
+        style={{ width, height, display: 'block' }} draggable={false} />
+      {state.visible && <div style={getPanelStyle()} />}
+    </div>
+  );
+};
+
+export default Magnifier;
