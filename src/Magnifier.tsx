@@ -71,7 +71,7 @@ const Magnifier: React.FC<MagnifierProps> = ({
     });
   }, [lensSize, position]);
 
-  const onMouseMove = (e: React.MouseEvent) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     handleMove(e.clientX, e.clientY, currentZoom);
   };
 
@@ -99,7 +99,7 @@ const Magnifier: React.FC<MagnifierProps> = ({
       backgroundSize: `${state.imgW}px ${state.imgH}px`,
       backgroundPosition: `${state.bgX}px ${state.bgY}px`,
       border: `${borderWidth}px solid ${borderColor}`,
-      pointerEvents: 'none', // Mercek fareyi engellemez.
+      pointerEvents: 'none',
       boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
       imageRendering: 'high-quality' as any,
     };
@@ -138,8 +138,8 @@ const Magnifier: React.FC<MagnifierProps> = ({
       ref={containerRef}
       className={className}
       style={{ position: 'relative', display: 'inline-block', overflow: 'visible', ...style }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
+      onPointerMove={onPointerMove}
+      onPointerLeave={() => setState(p => ({ ...p, visible: false }))}
       onTouchMove={onTouchMove}
       onTouchEnd={() => setState(p => ({ ...p, visible: false }))}
       onWheel={handleWheel}

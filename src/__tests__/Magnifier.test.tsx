@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import Magnifier from '../Magnifier';
 
@@ -57,25 +58,29 @@ describe('Magnifier', () => {
   });
 
   describe('Mouse Interaction', () => {
-    it('shows lens on mouse move', () => {
+    it('shows lens on pointer move', async () => {
+      const user = userEvent.setup();
       const { container } = render(<Magnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       // After move, a lens div should appear
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
     });
 
-    it('hides lens on mouse leave', () => {
+    it('hides lens on pointer leave', async () => {
+      const user = userEvent.setup();
       const { container } = render(<Magnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
 
-      fireEvent.mouseLeave(wrapper);
-      expect(wrapper.childNodes.length).toBe(1);
+      await user.unhover(wrapper);
+      await waitFor(() => {
+        expect(wrapper.childNodes.length).toBe(1);
+      });
     });
   });
 
@@ -112,7 +117,7 @@ describe('Magnifier', () => {
       const wrapper = container.firstChild as HTMLElement;
 
       // First show the lens
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
       const lensBefore = wrapper.querySelector('div[style]') as HTMLElement;
 
       // Zoom in with wheel
@@ -128,7 +133,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens.style.borderRadius).toBe('50%');
@@ -138,7 +143,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} lensShape="square" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens.style.borderRadius).toBe('6px');
@@ -150,7 +155,7 @@ describe('Magnifier', () => {
       );
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens).toHaveStyle({
@@ -163,7 +168,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} lensSize={200} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens.style.width).toBe('200px');
@@ -176,7 +181,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} position="follow" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       // For follow mode, lens is inside the container (not a portal)
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
@@ -186,7 +191,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} position="right" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       // For non-follow, lens is rendered via portal to document.body
       // The wrapper should still have only 1 child (img), lens goes to body
@@ -202,7 +207,7 @@ describe('Magnifier', () => {
       );
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens.style.backgroundImage).toContain('large.jpg');
@@ -212,7 +217,7 @@ describe('Magnifier', () => {
       const { container } = render(<Magnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      fireEvent.pointerMove(wrapper, { clientX: 200, clientY: 150 });
 
       const lens = wrapper.childNodes[1] as HTMLElement;
       expect(lens.style.backgroundImage).toContain('demo.jpeg');
