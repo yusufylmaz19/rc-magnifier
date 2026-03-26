@@ -30,12 +30,17 @@ export interface PiPMagnifierProps extends BaseMagnifierProps {
   pipSize?: number;
   pipPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   borderColor?: string;
+  lensSize?: number;
+  lensShape?: 'circle' | 'square';
 }
 
 // Grid
 export interface GridMagnifierProps extends BaseMagnifierProps {
   levels?: number[];
   position?: 'top' | 'bottom' | 'left' | 'right';
+  lensSize?: number;
+  lensShape?: 'circle' | 'square';
+  borderColor?: string;
 }
 
 // Fullscreen

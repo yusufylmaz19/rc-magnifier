@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import './App.css'
-import { 
-  Magnifier, 
-  PiPMagnifier, 
-  SplitMagnifier, 
-  GridMagnifier, 
-  FullscreenMagnifier 
+import {
+  Magnifier,
+  PiPMagnifier,
+  SplitMagnifier,
+  GridMagnifier,
+  FullscreenMagnifier
 } from '../../src'
 
 type MagnifierType = 'Magnifier' | 'PiPMagnifier' | 'SplitMagnifier' | 'GridMagnifier' | 'FullscreenMagnifier';
@@ -16,7 +16,9 @@ function App() {
   const [lensSize, setLensSize] = useState(150);
   const [lensShape, setLensShape] = useState<'circle' | 'square'>('circle');
   const [magnifierPosition, setMagnifierPosition] = useState<'follow' | 'left' | 'right' | 'top' | 'bottom'>('follow');
+  const [gridPosition, setGridPosition] = useState<'top' | 'bottom' | 'left' | 'right'>('bottom');
   const [pipPosition, setPipPosition] = useState<'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'>('bottom-right');
+  const [pipSize, setPipSize] = useState(250);
   const [splitRatio, setSplitRatio] = useState(0.5);
 
   const imgSrc = '/demo.jpeg';
@@ -25,47 +27,52 @@ function App() {
     switch (activeType) {
       case 'Magnifier':
         return (
-          <Magnifier 
-            src={imgSrc} 
-            zoomFactor={zoomFactor} 
-            lensSize={lensSize} 
-            lensShape={lensShape} 
+          <Magnifier
+            src={imgSrc}
+            zoomFactor={zoomFactor}
+            lensSize={lensSize}
+            lensShape={lensShape}
             position={magnifierPosition}
             width={500}
           />
         );
       case 'PiPMagnifier':
         return (
-          <PiPMagnifier 
-            src={imgSrc} 
-            zoomFactor={zoomFactor} 
-            pipSize={lensSize + 50} 
+          <PiPMagnifier
+            src={imgSrc}
+            zoomFactor={zoomFactor}
+            pipSize={pipSize}
             pipPosition={pipPosition}
+            lensSize={lensSize}
+            lensShape={lensShape}
             width={500}
           />
         );
       case 'SplitMagnifier':
         return (
-          <SplitMagnifier 
-            src={imgSrc} 
-            zoomFactor={zoomFactor} 
+          <SplitMagnifier
+            src={imgSrc}
+            zoomFactor={zoomFactor}
             splitRatio={splitRatio}
             width={500}
           />
         );
       case 'GridMagnifier':
         return (
-          <GridMagnifier 
-            src={imgSrc} 
+          <GridMagnifier
+            src={imgSrc}
             levels={[1.5, 2, 4, 8]}
+            position={gridPosition}
+            lensSize={lensSize}
+            lensShape={lensShape}
             width={500}
           />
         );
       case 'FullscreenMagnifier':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-            <FullscreenMagnifier 
-              src={imgSrc} 
+            <FullscreenMagnifier
+              src={imgSrc}
               zoomFactor={zoomFactor}
               width={400}
             />
@@ -84,7 +91,7 @@ function App() {
 
       <div className="tabs">
         {(['Magnifier', 'PiPMagnifier', 'SplitMagnifier', 'GridMagnifier', 'FullscreenMagnifier'] as MagnifierType[]).map(type => (
-          <button 
+          <button
             key={type}
             className={`tab-btn ${activeType === type ? 'active' : ''}`}
             onClick={() => setActiveType(type)}
@@ -101,13 +108,13 @@ function App() {
 
         <div className="controls-area">
           <h2>Controls</h2>
-          
+
           <div className="control-group">
             <label>Zoom Factor: {zoomFactor.toFixed(1)}x</label>
-            <input 
-              type="range" min="1" max="10" step="0.5" 
-              value={zoomFactor} 
-              onChange={(e) => setZoomFactor(parseFloat(e.target.value))} 
+            <input
+              type="range" min="1" max="10" step="0.5"
+              value={zoomFactor}
+              onChange={(e) => setZoomFactor(parseFloat(e.target.value))}
             />
           </div>
 
@@ -125,10 +132,10 @@ function App() {
               </div>
               <div className="control-group">
                 <label>Lens Size: {lensSize}px</label>
-                <input 
-                  type="range" min="50" max="300" step="10" 
-                  value={lensSize} 
-                  onChange={(e) => setLensSize(parseInt(e.target.value))} 
+                <input
+                  type="range" min="50" max="300" step="10"
+                  value={lensSize}
+                  onChange={(e) => setLensSize(parseInt(e.target.value))}
                 />
               </div>
               {magnifierPosition === 'follow' && (
@@ -144,24 +151,78 @@ function App() {
           )}
 
           {activeType === 'PiPMagnifier' && (
-            <div className="control-group">
-              <label>PiP Position</label>
-              <select value={pipPosition} onChange={(e) => setPipPosition(e.target.value as any)}>
-                <option value="top-left">Top Left</option>
-                <option value="top-right">Top Right</option>
-                <option value="bottom-left">Bottom Left</option>
-                <option value="bottom-right">Bottom Right</option>
-              </select>
-            </div>
+            <>
+              <div className="control-group">
+                <label>PiP Position</label>
+                <select value={pipPosition} onChange={(e) => setPipPosition(e.target.value as any)}>
+                  <option value="top-left">Top Left</option>
+                  <option value="top-right">Top Right</option>
+                  <option value="bottom-left">Bottom Left</option>
+                  <option value="bottom-right">Bottom Right</option>
+                </select>
+              </div>
+              <div className="control-group">
+                <label>PiP Size: {pipSize}px</label>
+                <input 
+                  type="range" min="150" max="400" step="10" 
+                  value={pipSize} 
+                  onChange={(e) => setPipSize(parseInt(e.target.value))} 
+                />
+              </div>
+              <div className="control-group">
+                <label>Lens Size: {lensSize}px</label>
+                <input 
+                  type="range" min="20" max="200" step="5" 
+                  value={lensSize} 
+                  onChange={(e) => setLensSize(parseInt(e.target.value))} 
+                />
+              </div>
+              <div className="control-group">
+                <label>Lens Shape</label>
+                <select value={lensShape} onChange={(e) => setLensShape(e.target.value as any)}>
+                  <option value="circle">Circle</option>
+                  <option value="square">Square</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {activeType === 'GridMagnifier' && (
+            <>
+              <div className="control-group">
+                <label>Grid Position</label>
+                <select value={gridPosition} onChange={(e) => setGridPosition(e.target.value as any)}>
+                  <option value="top">Top</option>
+                  <option value="bottom">Bottom</option>
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+              <div className="control-group">
+                <label>Lens Size: {lensSize}px</label>
+                <input 
+                  type="range" min="20" max="200" step="5" 
+                  value={lensSize} 
+                  onChange={(e) => setLensSize(parseInt(e.target.value))} 
+                />
+              </div>
+              <div className="control-group">
+                <label>Lens Shape</label>
+                <select value={lensShape} onChange={(e) => setLensShape(e.target.value as any)}>
+                  <option value="circle">Circle</option>
+                  <option value="square">Square</option>
+                </select>
+              </div>
+            </>
           )}
 
           {activeType === 'SplitMagnifier' && (
             <div className="control-group">
               <label>Split Ratio: {splitRatio.toFixed(2)}</label>
-              <input 
-                type="range" min="0.1" max="0.9" step="0.05" 
-                value={splitRatio} 
-                onChange={(e) => setSplitRatio(parseFloat(e.target.value))} 
+              <input
+                type="range" min="0.1" max="0.9" step="0.05"
+                value={splitRatio}
+                onChange={(e) => setSplitRatio(parseFloat(e.target.value))}
               />
             </div>
           )}

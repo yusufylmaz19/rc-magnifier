@@ -6,6 +6,7 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
   zoomFactor = 3, minZoom = 1, maxZoom = 10, pipSize = 200,
   pipPosition = 'bottom-right',
   borderColor = '#fff', alt = '', className, style,
+  lensSize, lensShape = 'square',
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [currentZoom, setCurrentZoom] = useState(zoomFactor);
@@ -66,6 +67,20 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
       onWheel={handleWheel}>
       <img ref={imgRef} src={src} alt={alt}
         style={{ width, height, display: 'block' }} draggable={false} />
+      {relPos.visible && lensSize && (
+        <div style={{
+          position: 'absolute',
+          left: relPos.x * (rect?.width || 0) - lensSize / 2,
+          top: relPos.y * (rect?.height || 0) - lensSize / 2,
+          width: lensSize,
+          height: lensSize,
+          border: `1px solid ${borderColor}`,
+          borderRadius: lensShape === 'circle' ? '50%' : '2px',
+          pointerEvents: 'none',
+          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+          zIndex: 10,
+        }} />
+      )}
       {relPos.visible && (
         <div style={{
           position: 'absolute', ...pipPos[pipPosition],

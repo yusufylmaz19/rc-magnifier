@@ -5,6 +5,7 @@ const GridMagnifier: React.FC<GridMagnifierProps> = ({
   src, largeSrc, width = '100%', height = 'auto',
   levels = [1.5, 2, 3, 4], alt = '', className, style,
   position = 'bottom',
+  lensSize, lensShape = 'square', borderColor = '#ccc',
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [pos, setPos] = useState({ x: 0.5, y: 0.5, visible: false });
@@ -58,6 +59,20 @@ const GridMagnifier: React.FC<GridMagnifierProps> = ({
         onPointerLeave={() => setPos(p => ({ ...p, visible: false }))}>
         <img ref={imgRef} src={src} alt={alt}
           style={{ width, height, display: 'block' }} draggable={false} />
+        {pos.visible && lensSize && (
+          <div style={{
+            position: 'absolute',
+            left: pos.x * (imgRef.current?.width || 0) - lensSize / 2,
+            top: pos.y * (imgRef.current?.height || 0) - lensSize / 2,
+            width: lensSize,
+            height: lensSize,
+            border: `1px solid ${borderColor}`,
+            borderRadius: lensShape === 'circle' ? '50%' : '2px',
+            pointerEvents: 'none',
+            boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+            zIndex: 10,
+          }} />
+        )}
       </div>
 
       {pos.visible && (
