@@ -157,6 +157,11 @@ import { FullscreenMagnifier } from 'rc-magnifier';
 - **Portals**: Fixed-position panels are rendered via React Portals to ensure they stay on top of all other elements.
 
 ---
+ 
+ ## License
+ MIT © [Yusuf Yılmaz](https://github.com/yusufylmaz19)
+
+---
 
 ## Keywords
 react, next, magnifier, magnify, component, zoom, image-zoom, magnifying-glass, pip, split-view, fullscreen-magnifier, responsive, grid-zoom, rc-magnifier, image-gallery, product-view

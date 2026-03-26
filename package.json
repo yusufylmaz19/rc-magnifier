@@ -8,9 +8,14 @@
   "files": [
     "dist"
   ],
+  "author": {
+    "name": "Yusuf Yılmaz",
+    "email": "yusufylmaz15@gmail.com",
+    "url": "https://github.com/yusufylmaz19/rc-magnifier"
+  },
+  "license": "MIT",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest",
     "dev": "rollup -c --watch",
     "prepublishOnly": "npm run build"
   },
@@ -20,12 +25,8 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.3.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.3.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "rollup": "^4.60.0",
