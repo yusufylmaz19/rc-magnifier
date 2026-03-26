@@ -4,7 +4,7 @@ A powerful and versatile image magnification library for React.
 
 ## Demo
 
-![Demo GIF](./public/demo.gif)
+![Demo GIF](https://raw.githubusercontent.com/yusufylmaz19/rc-magnifier/master/public/demo.gif)
 
 ## Installation
 
