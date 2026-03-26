@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import type { SplitMagnifierProps } from "./types";
 
 const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
@@ -16,6 +16,10 @@ const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
   const imgRef = useRef<HTMLImageElement>(null);
   const [pos, setPos] = useState({ x: 0.5, y: 0.5, visible: false });
   const [currentZoom, setCurrentZoom] = useState(zoomFactor);
+
+  useEffect(() => {
+    setCurrentZoom(zoomFactor);
+  }, [zoomFactor]);
 
   const handleMove = (clientX: number, clientY: number) => {
     const img = imgRef.current;

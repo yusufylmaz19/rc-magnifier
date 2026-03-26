@@ -16,13 +16,17 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
 }) => {
   const imgRef = useRef<HTMLImageElement>(null);
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ bgX: 0, bgY: 0, imgW: 0, imgH: 0 });
+  const [relPos, setRelPos] = useState({ x: 0, y: 0 });
   const [currentZoom, setCurrentZoom] = useState(zoomFactor);
   const [rotation, setRotation] = useState(initialRotation);
   const [flipX, setFlipX] = useState(initialFlipX);
   const [flipY, setFlipY] = useState(initialFlipY);
   const [isZoomActive, setIsZoomActive] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setCurrentZoom(zoomFactor);
+  }, [zoomFactor]);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 768);
@@ -37,70 +41,91 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
     setFlipY(initialFlipY);
   }, [initialRotation, initialFlipX, initialFlipY]);
 
-  const handleMove = (clientX: number, clientY: number, zoom: number, rot: number, fx: boolean, fy: boolean) => {
+  const handleMove = (clientX: number, clientY: number) => {
     if (!isZoomActive) return;
     const overlay = document.getElementById('fs-overlay');
     if (!overlay) return;
-    const rect = overlay.getBoundingClientRect();
+    const r = overlay.getBoundingClientRect();
 
-    // Normal coordinate relative to overlay center
-    let x = clientX - (rect.left + rect.width / 2);
-    let y = clientY - (rect.top + rect.height / 2);
+    let x = clientX - (r.left + r.width / 2);
+    let y = clientY - (r.top + r.height / 2);
 
-    // Inverse Transformation for Mouse/Touch Coordinates
-    if (fx) x = -x;
-    if (fy) y = -y;
+    if (flipX) x = -x;
+    if (flipY) y = -y;
 
-    const rad = (-rot * Math.PI) / 180;
+    const rad = (-rotation * Math.PI) / 180;
     const rx = x * Math.cos(rad) - y * Math.sin(rad);
     const ry = x * Math.sin(rad) + y * Math.cos(rad);
 
-    const finalX = rx + rect.width / 2;
-    const finalY = ry + rect.height / 2;
+    const finalX = rx + r.width / 2;
+    const finalY = ry + r.height / 2;
 
     const img = imgRef.current;
     if (!img) return;
 
-    const overlayRatio = rect.width / rect.height;
-    const is90 = Math.abs(rot % 180) === 90;
-    const imgW = is90 ? img.naturalHeight : img.naturalWidth;
-    const imgH = is90 ? img.naturalWidth : img.naturalHeight;
-    const imgRatio = imgW / imgH;
+    const overlayRatio = r.width / r.height;
+    const is90 = Math.abs(rotation % 180) === 90;
+    const w = is90 ? img.naturalHeight : img.naturalWidth;
+    const h = is90 ? img.naturalWidth : img.naturalHeight;
+    const imgRatio = w / h;
 
     let baseW, baseH;
     if (imgRatio > overlayRatio) {
-      baseW = rect.width;
-      baseH = rect.width / imgRatio;
+      baseW = r.width;
+      baseH = r.width / imgRatio;
     } else {
-      baseH = rect.height;
-      baseW = rect.height * imgRatio;
+      baseH = r.height;
+      baseW = r.height * imgRatio;
     }
 
-    const imgLeft = (rect.width - baseW) / 2;
-    const imgTop = (rect.height - baseH) / 2;
+    const imgLeft = (r.width - baseW) / 2;
+    const imgTop = (r.height - baseH) / 2;
 
     const clampedX = Math.max(0, Math.min(finalX - imgLeft, baseW));
     const clampedY = Math.max(0, Math.min(finalY - imgTop, baseH));
 
-    setPos({
-      bgX: -(clampedX * zoom - rect.width / 2),
-      bgY: -(clampedY * zoom - rect.height / 2),
-      imgW: baseW * zoom,
-      imgH: baseH * zoom,
+    setRelPos({
+      x: clampedX / baseW,
+      y: clampedY / baseH,
     });
   };
 
+  const overlay = typeof document !== 'undefined' ? document.getElementById('fs-overlay') : null;
+  const overlayRect = overlay ? overlay.getBoundingClientRect() : null;
+  const img = imgRef.current;
+
+  let bgX = 0, bgY = 0, bgW = 0, bgH = 0;
+  if (overlayRect && img) {
+    const overlayRatio = overlayRect.width / overlayRect.height;
+    const is90 = Math.abs(rotation % 180) === 90;
+    const w = is90 ? img.naturalHeight : img.naturalWidth;
+    const h = is90 ? img.naturalWidth : img.naturalHeight;
+    const imgRatio = w / h;
+
+    let baseW, baseH;
+    if (imgRatio > overlayRatio) {
+      baseW = overlayRect.width;
+      baseH = overlayRect.width / imgRatio;
+    } else {
+      baseH = overlayRect.height;
+      baseW = overlayRect.height * imgRatio;
+    }
+
+    bgW = baseW * currentZoom;
+    bgH = baseH * currentZoom;
+    bgX = -(relPos.x * baseW * currentZoom - overlayRect.width / 2);
+    bgY = -(relPos.y * baseH * currentZoom - overlayRect.height / 2);
+  }
+
   const onPointerMove = (e: React.PointerEvent) => {
-    handleMove(e.clientX, e.clientY, currentZoom, rotation, flipX, flipY);
+    handleMove(e.clientX, e.clientY);
   };
 
   const handleWheel = (e: React.WheelEvent) => {
     if (!isZoomActive) return;
     e.preventDefault();
     const newZoom = currentZoom + (e.deltaY < 0 ? 0.5 : -0.5);
-    const clampedZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
-    setCurrentZoom(clampedZoom);
-    handleMove(e.clientX, e.clientY, clampedZoom, rotation, flipX, flipY);
+    setCurrentZoom(Math.max(minZoom, Math.min(newZoom, maxZoom)));
   };
 
   const reset = () => {
@@ -157,8 +182,8 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
                 width: '100%', height: '100%',
                 backgroundImage: `url(${popupSrc})`,
                 backgroundRepeat: 'no-repeat',
-                backgroundSize: (isZoomActive && pos.imgW) ? `${pos.imgW}px ${pos.imgH}px` : 'contain',
-                backgroundPosition: (isZoomActive && pos.imgW) ? `${pos.bgX}px ${pos.bgY}px` : 'center',
+                backgroundSize: (isZoomActive && bgW) ? `${bgW}px ${bgH}px` : 'contain',
+                backgroundPosition: (isZoomActive && bgW) ? `${bgX}px ${bgY}px` : 'center',
                 cursor: isZoomActive ? 'crosshair' : 'default',
                 imageRendering: 'high-quality' as any,
               }} />
