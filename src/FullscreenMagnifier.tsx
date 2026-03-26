@@ -90,14 +90,8 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
     });
   };
 
-  const onMouseMove = (e: React.MouseEvent) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     handleMove(e.clientX, e.clientY, currentZoom, rotation, flipX, flipY);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (e.touches && e.touches[0]) {
-      handleMove(e.touches[0].clientX, e.touches[0].clientY, currentZoom, rotation, flipX, flipY);
-    }
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -157,8 +151,7 @@ const FullscreenMagnifier: React.FC<FullscreenMagnifierProps> = ({
             }}
           >
             <div id="fs-overlay"
-              onMouseMove={onMouseMove}
-              onTouchMove={onTouchMove}
+              onPointerMove={onPointerMove}
               onWheel={handleWheel}
               style={{
                 width: '100%', height: '100%',
