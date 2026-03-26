@@ -58,8 +58,8 @@ const SplitMagnifier: React.FC<SplitMagnifierProps> = ({
           width: `${splitRatio * 100}%`,
           overflow: "hidden",
         }}
-        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-        onMouseLeave={() => setPos((p) => ({ ...p, visible: false }))}
+        onPointerMove={(e) => handleMove(e.clientX, e.clientY)}
+        onPointerLeave={() => setPos((p) => ({ ...p, visible: false }))}
         onWheel={handleWheel}
       >
         <img

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import PiPMagnifier from '../PiPMagnifier';
 
@@ -38,79 +39,88 @@ describe('PiPMagnifier', () => {
   });
 
   describe('Mouse Interaction', () => {
-    it('shows PiP panel on mouse move', () => {
+    it('shows PiP panel on pointer move', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
     });
 
-    it('hides PiP panel on mouse leave', () => {
+    it('hides PiP panel on pointer leave', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
 
-      fireEvent.mouseLeave(wrapper);
-      expect(wrapper.childNodes.length).toBe(1);
+      await user.unhover(wrapper);
+      await waitFor(() => {
+        expect(wrapper.childNodes.length).toBe(1);
+      });
     });
 
-    it('hides PiP panel when mouse moves outside image bounds', () => {
+    it('hides PiP panel when mouse moves outside image bounds', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
       // Move inside first
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
 
       // Move to negative coordinates (outside image)
-      fireEvent.mouseMove(wrapper, { clientX: -10, clientY: -10 });
+      await user.pointer({ coords: { clientX: -10, clientY: -10 } });
       expect(wrapper.childNodes.length).toBe(1);
     });
   });
 
   describe('PiP Position', () => {
-    it('positions PiP at bottom-right by default', () => {
+    it('positions PiP at bottom-right by default', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.bottom).toBe('10px');
       expect(pip.style.right).toBe('10px');
     });
 
-    it('positions PiP at top-left', () => {
+    it('positions PiP at top-left', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} pipPosition="top-left" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.top).toBe('10px');
       expect(pip.style.left).toBe('10px');
     });
 
-    it('positions PiP at top-right', () => {
+    it('positions PiP at top-right', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} pipPosition="top-right" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.top).toBe('10px');
       expect(pip.style.right).toBe('10px');
     });
 
-    it('positions PiP at bottom-left', () => {
+    it('positions PiP at bottom-left', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} pipPosition="bottom-left" />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.bottom).toBe('10px');
@@ -119,22 +129,24 @@ describe('PiPMagnifier', () => {
   });
 
   describe('PiP Size', () => {
-    it('uses default pipSize of 200', () => {
+    it('uses default pipSize of 200', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.width).toBe('200px');
       expect(pip.style.height).toBe('200px');
     });
 
-    it('applies custom pipSize', () => {
+    it('applies custom pipSize', async () => {
+      const user = userEvent.setup();
       const { container } = render(<PiPMagnifier {...defaultProps} pipSize={300} />);
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.width).toBe('300px');
@@ -143,13 +155,14 @@ describe('PiPMagnifier', () => {
   });
 
   describe('Wheel Zoom', () => {
-    it('handles wheel event for zooming', () => {
+    it('handles wheel event for zooming', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <PiPMagnifier {...defaultProps} zoomFactor={2} minZoom={1} maxZoom={5} />
       );
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
       fireEvent.wheel(wrapper, { deltaY: -100, clientX: 200, clientY: 150 });
 
       // PiP should still be visible after zoom
@@ -158,13 +171,14 @@ describe('PiPMagnifier', () => {
   });
 
   describe('LargeSrc', () => {
-    it('uses largeSrc for background image when provided', () => {
+    it('uses largeSrc for background image when provided', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <PiPMagnifier {...defaultProps} largeSrc="https://example.com/large.jpg" />
       );
       const wrapper = container.firstChild as HTMLElement;
 
-      fireEvent.mouseMove(wrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: wrapper, coords: { clientX: 200, clientY: 150 } });
 
       const pip = wrapper.childNodes[1] as HTMLElement;
       expect(pip.style.backgroundImage).toContain('large.jpg');

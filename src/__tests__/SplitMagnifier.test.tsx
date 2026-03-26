@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import SplitMagnifier from '../SplitMagnifier';
 
@@ -49,39 +50,44 @@ describe('SplitMagnifier', () => {
   });
 
   describe('Mouse Interaction', () => {
-    it('shows zoomed panel on mouse move', () => {
+    it('shows zoomed panel on pointer move', async () => {
+      const user = userEvent.setup();
       const { container } = render(<SplitMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
       const leftPanel = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(leftPanel, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: leftPanel, coords: { clientX: 200, clientY: 150 } });
 
       // After move, a zoomed panel and crosshair overlay should appear
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
     });
 
-    it('hides zoomed panel on mouse leave', () => {
+    it('hides zoomed panel on pointer leave', async () => {
+      const user = userEvent.setup();
       const { container } = render(<SplitMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
       const leftPanel = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(leftPanel, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: leftPanel, coords: { clientX: 200, clientY: 150 } });
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
 
-      fireEvent.mouseLeave(leftPanel);
-      expect(wrapper.childNodes.length).toBe(1);
+      await user.unhover(leftPanel);
+      await waitFor(() => {
+        expect(wrapper.childNodes.length).toBe(1);
+      });
     });
   });
 
   describe('Wheel Zoom', () => {
-    it('handles wheel event for zooming', () => {
+    it('handles wheel event for zooming', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <SplitMagnifier {...defaultProps} zoomFactor={2} minZoom={1} maxZoom={5} />
       );
       const wrapper = container.firstChild as HTMLElement;
       const leftPanel = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(leftPanel, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: leftPanel, coords: { clientX: 200, clientY: 150 } });
       fireEvent.wheel(leftPanel, { deltaY: -100, clientX: 200, clientY: 150 });
 
       // Zoomed panel should still be visible
@@ -90,14 +96,15 @@ describe('SplitMagnifier', () => {
   });
 
   describe('LargeSrc', () => {
-    it('uses largeSrc for zoomed panel background', () => {
+    it('uses largeSrc for zoomed panel background', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <SplitMagnifier {...defaultProps} largeSrc="https://example.com/large.jpg" />
       );
       const wrapper = container.firstChild as HTMLElement;
       const leftPanel = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(leftPanel, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: leftPanel, coords: { clientX: 200, clientY: 150 } });
 
       // The zoomed panel is the second child of the wrapper
       const zoomedPanel = wrapper.childNodes[1] as HTMLElement;

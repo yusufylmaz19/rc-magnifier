@@ -28,7 +28,7 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
     });
   };
 
-  const onMouseMove = (e: React.MouseEvent) => {
+  const onPointerMove = (e: React.PointerEvent) => {
     handleMove(e.clientX, e.clientY, currentZoom);
   };
 
@@ -54,8 +54,8 @@ const PiPMagnifier: React.FC<PiPMagnifierProps> = ({
   return (
     <div className={className}
       style={{ position: 'relative', display: 'inline-block', ...style }}
-      onMouseMove={onMouseMove}
-      onMouseLeave={() => setState(p => ({ ...p, visible: false }))}
+      onPointerMove={onPointerMove}
+      onPointerLeave={() => setState(p => ({ ...p, visible: false }))}
       onWheel={handleWheel}>
       <img ref={imgRef} src={src} alt={alt}
         style={{ width, height, display: 'block' }} draggable={false} />

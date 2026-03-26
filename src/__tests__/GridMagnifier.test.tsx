@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { fireEvent } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 import GridMagnifier from '../GridMagnifier';
 
@@ -33,64 +34,71 @@ describe('GridMagnifier', () => {
   });
 
   describe('Mouse Interaction', () => {
-    it('shows grid cells on mouse move', () => {
+    it('shows grid cells on pointer move', async () => {
+      const user = userEvent.setup();
       const { container } = render(<GridMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
 
-      // After mouse move, grid panel should appear
+      // After pointer move, grid panel should appear
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
     });
 
-    it('hides grid cells on mouse leave', () => {
+    it('hides grid cells on pointer leave', async () => {
+      const user = userEvent.setup();
       const { container } = render(<GridMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
       expect(wrapper.childNodes.length).toBeGreaterThan(1);
 
-      fireEvent.mouseLeave(imgWrapper);
-      expect(wrapper.childNodes.length).toBe(1);
+      await user.unhover(imgWrapper);
+      await waitFor(() => {
+        expect(wrapper.childNodes.length).toBe(1);
+      });
     });
   });
 
   describe('Levels', () => {
-    it('renders correct number of grid cells based on default levels', () => {
+    it('renders correct number of grid cells based on default levels', async () => {
+      const user = userEvent.setup();
       const { container } = render(<GridMagnifier {...defaultProps} />);
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
 
       const gridContainer = wrapper.childNodes[1] as HTMLElement;
       // Default levels = [1.5, 2, 3, 4] → 4 cells
       expect(gridContainer.childNodes.length).toBe(4);
     });
 
-    it('renders correct number of cells for custom levels', () => {
+    it('renders correct number of cells for custom levels', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <GridMagnifier {...defaultProps} levels={[2, 4, 6]} />
       );
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
 
       const gridContainer = wrapper.childNodes[1] as HTMLElement;
       expect(gridContainer.childNodes.length).toBe(3);
     });
 
-    it('displays zoom level labels in grid cells', () => {
+    it('displays zoom level labels in grid cells', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <GridMagnifier {...defaultProps} levels={[2, 4]} />
       );
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
 
       expect(screen.getByText('2x')).toBeInTheDocument();
       expect(screen.getByText('4x')).toBeInTheDocument();
@@ -124,14 +132,15 @@ describe('GridMagnifier', () => {
   });
 
   describe('LargeSrc', () => {
-    it('uses largeSrc for grid cell backgrounds', () => {
+    it('uses largeSrc for grid cell backgrounds', async () => {
+      const user = userEvent.setup();
       const { container } = render(
         <GridMagnifier {...defaultProps} largeSrc="https://example.com/large.jpg" levels={[2]} />
       );
       const wrapper = container.firstChild as HTMLElement;
       const imgWrapper = wrapper.childNodes[0] as HTMLElement;
 
-      fireEvent.mouseMove(imgWrapper, { clientX: 200, clientY: 150 });
+      await user.pointer({ target: imgWrapper, coords: { clientX: 200, clientY: 150 } });
 
       const gridContainer = wrapper.childNodes[1] as HTMLElement;
       const cell = gridContainer.childNodes[0] as HTMLElement;

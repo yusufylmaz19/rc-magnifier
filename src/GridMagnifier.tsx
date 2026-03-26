@@ -54,8 +54,8 @@ const GridMagnifier: React.FC<GridMagnifierProps> = ({
   return (
     <div className={className} style={getContainerStyle()}>
       <div style={{ position: 'relative', display: 'inline-block' }}
-        onMouseMove={e => handleMove(e.clientX, e.clientY)}
-        onMouseLeave={() => setPos(p => ({ ...p, visible: false }))}>
+        onPointerMove={e => handleMove(e.clientX, e.clientY)}
+        onPointerLeave={() => setPos(p => ({ ...p, visible: false }))}>
         <img ref={imgRef} src={src} alt={alt}
           style={{ width, height, display: 'block' }} draggable={false} />
       </div>
