@@ -6,7 +6,7 @@ import {
   SplitMagnifier,
   GridMagnifier,
   FullscreenMagnifier
-} from '../../src'
+} from 'rc-magnifier'
 
 type MagnifierType = 'Magnifier' | 'PiPMagnifier' | 'SplitMagnifier' | 'GridMagnifier' | 'FullscreenMagnifier';
 
