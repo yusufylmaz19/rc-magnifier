@@ -33,7 +33,8 @@ function App() {
             lensSize={lensSize}
             lensShape={lensShape}
             position={magnifierPosition}
-            width={500}
+            width="100%"
+            style={{ maxWidth: '500px' }}
           />
         );
       case 'PiPMagnifier':
@@ -45,7 +46,8 @@ function App() {
             pipPosition={pipPosition}
             lensSize={lensSize}
             lensShape={lensShape}
-            width={500}
+            width="100%"
+            style={{ maxWidth: '500px' }}
           />
         );
       case 'SplitMagnifier':
@@ -54,7 +56,8 @@ function App() {
             src={imgSrc}
             zoomFactor={zoomFactor}
             splitRatio={splitRatio}
-            width={500}
+            width="100%"
+            style={{ maxWidth: '500px' }}
           />
         );
       case 'GridMagnifier':
@@ -65,7 +68,8 @@ function App() {
             position={gridPosition}
             lensSize={lensSize}
             lensShape={lensShape}
-            width={500}
+            width="100%"
+            style={{ maxWidth: '500px' }}
           />
         );
       case 'FullscreenMagnifier':
@@ -74,7 +78,8 @@ function App() {
             <FullscreenMagnifier
               src={imgSrc}
               zoomFactor={zoomFactor}
-              width={400}
+              width="100%"
+              style={{ maxWidth: '400px' }}
             />
             <p style={{ color: '#64748b', fontWeight: 500 }}>Click the button on the image to open fullscreen mode</p>
           </div>
@@ -163,18 +168,18 @@ function App() {
               </div>
               <div className="control-group">
                 <label>PiP Size: {pipSize}px</label>
-                <input 
-                  type="range" min="150" max="400" step="10" 
-                  value={pipSize} 
-                  onChange={(e) => setPipSize(parseInt(e.target.value))} 
+                <input
+                  type="range" min="150" max="400" step="10"
+                  value={pipSize}
+                  onChange={(e) => setPipSize(parseInt(e.target.value))}
                 />
               </div>
               <div className="control-group">
                 <label>Lens Size: {lensSize}px</label>
-                <input 
-                  type="range" min="20" max="200" step="5" 
-                  value={lensSize} 
-                  onChange={(e) => setLensSize(parseInt(e.target.value))} 
+                <input
+                  type="range" min="20" max="200" step="5"
+                  value={lensSize}
+                  onChange={(e) => setLensSize(parseInt(e.target.value))}
                 />
               </div>
               <div className="control-group">
@@ -200,10 +205,10 @@ function App() {
               </div>
               <div className="control-group">
                 <label>Lens Size: {lensSize}px</label>
-                <input 
-                  type="range" min="20" max="200" step="5" 
-                  value={lensSize} 
-                  onChange={(e) => setLensSize(parseInt(e.target.value))} 
+                <input
+                  type="range" min="20" max="200" step="5"
+                  value={lensSize}
+                  onChange={(e) => setLensSize(parseInt(e.target.value))}
                 />
               </div>
               <div className="control-group">

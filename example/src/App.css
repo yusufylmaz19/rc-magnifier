@@ -46,6 +46,7 @@ h1 {
   letter-spacing: -2px;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -139,6 +140,7 @@ h1 {
 input[type="range"] {
   height: 6px;
   -webkit-appearance: none;
+  appearance: none;
   background: #e2e8f0;
   border-radius: 5px;
   outline: none;
@@ -146,6 +148,7 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   width: 18px;
   height: 18px;
   background: #2563eb;
@@ -209,9 +212,41 @@ footer {
   font-size: 0.95rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .showcase {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
     padding: 1.5rem;
+    border-radius: 1.5rem;
+  }
+  
+  .preview-area {
+    min-height: auto;
+    padding: 1rem;
+    aspect-ratio: 1 / 1;
+  }
+
+  .controls-area {
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .demo-container {
+    padding: 1.5rem 1rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .tab-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 8px;
   }
 }
