@@ -34,7 +34,7 @@
     "url": "https://www.yusufyilmaz.tech"
   },
   "repository": "https://github.com/yusufylmaz19/rc-magnifier",
-  "homepage": "https://rc-magnifier-kz7o-phi.vercel.app",
+  "homepage": "https://rc-magnifier.vercel.app",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
