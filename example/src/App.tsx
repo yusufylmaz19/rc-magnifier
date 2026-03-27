@@ -7,6 +7,7 @@ import {
   GridMagnifier,
   FullscreenMagnifier
 } from 'rc-magnifier'
+import CookieConsent from './components/CookieConsent';
 
 type MagnifierType = 'Magnifier' | 'PiPMagnifier' | 'SplitMagnifier' | 'GridMagnifier' | 'FullscreenMagnifier';
 
@@ -244,11 +245,11 @@ function App() {
           </div>
         </div>
       </div>
-
       <footer>
         <p>Built with React + Vite | MIT Licensed</p>
         <p>Install with <code>npm install rc-magnifier</code></p>
       </footer>
+      <CookieConsent gaId={import.meta.env.VITE_GA_ID} />
     </div>
   )
 }

@@ -1,0 +1,129 @@
+.cookie-consent-overlay {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: auto;
+  min-width: 320px;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  /* Increased gap between text and buttons */
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.cookie-content {
+  flex: 1;
+}
+
+.cookie-content h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.cookie-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #424245;
+  line-height: 1.5;
+}
+
+.cookie-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 14px;
+}
+
+.cookie-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  width: 100%;
+  text-align: center;
+}
+
+.cookie-btn.accept {
+  background: #0071e3;
+  color: white;
+}
+
+.cookie-btn.accept:hover {
+  background: #0077ed;
+  transform: scale(1.02);
+}
+
+.cookie-btn.decline {
+  background: #f5f5f7;
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.cookie-btn.decline:hover {
+  background: #e8e8ed;
+}
+
+@media (max-width: 600px) {
+  .cookie-consent-overlay {
+    bottom: 1.5rem;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    border-radius: 20px;
+    animation: slideUpMobile 0.5s ease-out;
+  }
+
+  @keyframes slideUpMobile {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .cookie-content h3 {
+    font-size: 1.15rem;
+  }
+
+  .cookie-content p {
+    font-size: 0.9rem;
+  }
+
+  .cookie-btn {
+    padding: 0.7rem;
+  }
+}
