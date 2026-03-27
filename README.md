@@ -1,5 +1,9 @@
 # rc-magnifier
 
+![NPM Version](https://img.shields.io/npm/v/rc-magnifier?style=flat-square&color=blue)
+![NPM Total Downloads](https://img.shields.io/npm/dt/rc-magnifier?style=flat-square&color=success)
+![License](https://img.shields.io/npm/l/rc-magnifier?style=flat-square&color=yellow)
+
 A powerful and versatile image magnification library for React.
 
 ## Demo
